@@ -30,16 +30,18 @@ class App extends Component  {
     state = {
 		loading: false,
 		textLoading: '',
-		showSearch: false,		
+        showSearch: false,	
+        showCategorias: false,	
         data: [],
+        dataCategorias: [],
         busca: '',
         pagina: 0
     }
 
     componentDidMount() {
         
-        console.log('FETCH DE PRODUTOS');
-        this.getProdutos(10);
+        this.getCategorias();
+        this.getProdutos();
     }
 
     showSearch() {
@@ -82,24 +84,33 @@ class App extends Component  {
 		}
 	}
 
-    getProdutos2 = async() => {
+    getCategorias = async() => {
 
         try {
 
-            let response = await fetch('https://desafio.mobfiq.com.br/Search/Criteria', {
-                  method: 'POST',
-                  headers: {
+            this.setState({loading: true});
+			this.setState({textLoading: 'Carregando Dados'});
+
+			return await fetch('https://desafio.mobfiq.com.br/Search/Criteria', {
+				method: 'GET',
+				headers: {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                   },
-                  body: '{\"Query\" : \"' + this.state.busca + '\",\"Offset\": ' + this.state.pagina + ',\"Size\": ' + '10' + '} '
-            });
-
-            let responseJson = await response.json();
-
-            console.log(responseJson.Products);
-
-            this.setState({data: responseJson.Products});
+			})
+			.then(function (response) {
+	
+				return response.json();
+			})
+			.then((result) => {
+	
+				this.setState({dataCategorias: result.Categories});
+				this.setState({loading: false});
+			})
+			.catch((result) => {
+	
+				console.log(result);
+			});             
         }
         catch(e) {
 
@@ -116,7 +127,45 @@ class App extends Component  {
 					visible={this.state.loading} 
 					animating={this.state.loading} 
 					text={this.state.textLoading} 
-				/>
+                />
+                
+                <Modal
+                    animationType="slide"
+                    transparent={false}
+                    visible={this.state.showCategorias}
+                >
+                    <ScrollView style={{width: '100%', height: '100%'}}>
+
+                        <NavigationBar					
+                            style={{
+                                backgroundColor: '#000000',
+                                height: 60,
+                                alignItems: 'center',
+                                marginTop: Platform.OS === 'ios' ? 15 : 0,
+                            }}
+                            leftButton={
+                                <TouchableOpacity onPress={() => this.setState({showCategorias: false})}>
+                                    <Image source={require('./assets/back.png')} style={{ width: 34, height: 34, marginLeft: '4%' }} />
+                                </TouchableOpacity>
+                            }  
+                            title={
+                                <Text 
+                                    style={{
+                                        color: '#ffffff',
+                                        justifyContent: 'center',
+                                        alignItems: 'center',
+                                        fontSize: 18,
+                                        fontWeight: 'bold'
+                                    }}
+                                >
+                                    CATEGORIAS
+                                </Text>
+                            }                          
+                        />   
+
+                    </ScrollView>
+
+                </Modal>
 
                 <View style={styles.container}>
                     <NavigationBar					
@@ -127,7 +176,7 @@ class App extends Component  {
                             marginTop: Platform.OS === 'ios' ? 15 : 0,
                         }}
                         leftButton={
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => this.setState({showCategorias: true})}>
                                 <Image source={require('./assets/menu.png')} style={{ width: 34, height: 34, marginLeft: '4%' }} />
                             </TouchableOpacity>
                         }
