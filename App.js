@@ -70,6 +70,7 @@ class App extends Component  {
 	
 				this.setState({data: result.Products});
 				this.setState({loading: false});
+				this.setState({showSearch: false});
 			})
 			.catch((result) => {
 	
