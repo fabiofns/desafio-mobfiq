@@ -1,3 +1,9 @@
+/**
+ * Componente de Loading Personalizado
+ * 
+ * @author Fabio Souza (fabiofns@gmail.com)
+ * @copyright XHB Soluctions
+ */
 import React, { Component } from 'react';
 import {
     View,

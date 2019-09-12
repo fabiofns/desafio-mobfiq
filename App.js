@@ -1,9 +1,8 @@
 /**
- * Sample React Native App
- * https://github.com/facebook/react-native
+ * Desafio Mobile Mobfiq
  *
- * @format
- * @flow
+ * @author Fabio Souza (fabiofns@gmail.com)
+ * @copyright XHB Soluctions
  */
 console.disableYellowBox = true;
 
@@ -44,11 +43,17 @@ class App extends Component  {
         this.getProdutos();
     }
 
+    /**
+     * Metodo para mostrar e ocultar o campo de pesquisa
+     */
     showSearch() {
 
         this.setState({showSearch: !this.state.showSearch});
 	}
-	
+    
+    /**
+     * Metodo que carrega os produtos na state, os parametros sao carregados atraves da state
+     */
 	getProdutos = async () => {
 
 		try {
@@ -84,6 +89,9 @@ class App extends Component  {
 		}
 	}
 
+    /**
+     * Metodo que busca as categorias e seta uma state para gerar os botoes das categorias
+     */
     getCategorias = async() => {
 
         try {
@@ -128,7 +136,7 @@ class App extends Component  {
 					animating={this.state.loading} 
 					text={this.state.textLoading} 
                 />
-                
+
                 <Modal
                     animationType="slide"
                     transparent={false}
@@ -136,33 +144,40 @@ class App extends Component  {
                 >
                     <ScrollView style={{width: '100%', height: '100%'}}>
 
-                        <NavigationBar					
+                        <View
                             style={{
-                                backgroundColor: '#000000',
-                                height: 60,
-                                alignItems: 'center',
-                                marginTop: Platform.OS === 'ios' ? 15 : 0,
+                                width: '100%',
+                                height: '100%'
                             }}
-                            leftButton={
-                                <TouchableOpacity onPress={() => this.setState({showCategorias: false})}>
-                                    <Image source={require('./assets/back.png')} style={{ width: 34, height: 34, marginLeft: '4%' }} />
-                                </TouchableOpacity>
-                            }  
-                            title={
-                                <Text 
-                                    style={{
-                                        color: '#ffffff',
-                                        justifyContent: 'center',
-                                        alignItems: 'center',
-                                        fontSize: 18,
-                                        fontWeight: 'bold'
-                                    }}
-                                >
-                                    CATEGORIAS
-                                </Text>
-                            }                          
-                        />   
+                        >
 
+                            <NavigationBar					
+                                style={{
+                                    backgroundColor: '#000000',
+                                    height: 60,
+                                    alignItems: 'center',
+                                    marginTop: Platform.OS === 'ios' ? 15 : 0,
+                                }}
+                                leftButton={
+                                    <TouchableOpacity onPress={() => this.setState({showCategorias: false})}>
+                                        <Image source={require('./assets/back.png')} style={{ width: 34, height: 34, marginLeft: '4%' }} />
+                                    </TouchableOpacity>
+                                }  
+                                title={
+                                    <Text 
+                                        style={{
+                                            color: '#ffffff',
+                                            justifyContent: 'center',
+                                            alignItems: 'center',
+                                            fontSize: 18,
+                                            fontWeight: 'bold'
+                                        }}
+                                    >
+                                        CATEGORIAS
+                                    </Text>
+                                }                          
+                            />   
+                        </View>
                     </ScrollView>
 
                 </Modal>
@@ -314,22 +329,6 @@ const styles = StyleSheet.create({
     text: {
         color: "#333333"
 	},
-	modalBackground: {
-		flex: 1,
-		alignItems: 'center',
-		flexDirection: 'column',
-		justifyContent: 'space-around',
-		backgroundColor: '#00000040'
-	},
-	activityIndicatorWrapper: {
-		backgroundColor: '#FFFFFF',
-		height: 100,
-		width: 100,
-		borderRadius: 10,
-		display: 'flex',
-		alignItems: 'center',
-		justifyContent: 'space-around'
-	}
 });
 
 export default Project = App;
