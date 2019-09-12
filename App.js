@@ -45,9 +45,43 @@ class App extends Component  {
     showSearch() {
 
         this.setState({showSearch: !this.state.showSearch});
-    }
+	}
+	
+	getProdutos = async () => {
 
-    getProdutos = async() => {
+		try {
+
+			this.setState({loading: true});
+			this.setState({textLoading: 'Carregando Produtos'});
+
+			return await fetch('https://desafio.mobfiq.com.br/Search/Criteria', {
+				method: 'POST',
+				headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                  },
+                  body: '{\"Query\" : \"' + this.state.busca + '\",\"Offset\": ' + this.state.pagina + ',\"Size\": ' + '10' + '} '
+			})
+			.then(function (response) {
+	
+				return response.json();
+			})
+			.then((result) => {
+	
+				this.setState({data: result.Products});
+				this.setState({loading: false});
+			})
+			.catch((result) => {
+	
+				console.log(result);
+			}); 			
+		}
+		catch(e) {
+			console.log(e);
+		}
+	}
+
+    getProdutos2 = async() => {
 
         try {
 
