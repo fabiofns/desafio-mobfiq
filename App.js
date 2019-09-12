@@ -28,8 +28,9 @@ import Loading from './src/Loading';
 class App extends Component  {
 
     state = {
-        loading: true,
-        showSearch: false,
+		loading: false,
+		textLoading: '',
+		showSearch: false,		
         data: [],
         busca: '',
         pagina: 0
@@ -76,7 +77,11 @@ class App extends Component  {
         return (
 			<View style={{width: '100%', height: '100%', flexDirection: 'column'}}>
 			
-				<Loading visible={this.state.loading} animating={this.state.loading} />
+				<Loading 
+					visible={this.state.loading} 
+					animating={this.state.loading} 
+					text={this.state.textLoading} 
+				/>
 
                 <View style={styles.container}>
                     <NavigationBar					
