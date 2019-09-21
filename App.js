@@ -55,9 +55,11 @@ class App extends Component  {
     /**
      * Metodo que carrega os produtos na state, os parametros sao carregados atraves da state
      */
-	getProdutos = async (pesquisa='') => {
+	getProdutos = async (pesquisa) => {
 
 		try {
+
+            this.setState({data: []});
             
             if (this.state.busca != '') {
 
@@ -129,6 +131,35 @@ class App extends Component  {
 	
 				console.log(result);
 			});             
+        }
+        catch(e) {
+
+            console.log(e);
+        }
+    }
+
+    setFavorito = (id) => {
+
+        try {
+
+            getData('@' + id).then(value => {
+
+                if (value) {
+
+                    if (value == 1) {
+
+                        storeData('@' + id, String('0'));
+                    }
+                    else {
+
+                        storeData('@' + id, String('1'));
+                    }
+                }
+                else {
+
+                    storeData('@' + id, String('1'));
+                }
+            });
         }
         catch(e) {
 
@@ -211,6 +242,8 @@ class App extends Component  {
                                                 }}
                                                 onPress={() => {
 
+                                                    this.setState({data: []});
+                                                    this.setState({busca: item.Name});
                                                     this.getProdutos(item.Name);                                                    
                                                 }}
                                             >
@@ -329,8 +362,14 @@ class App extends Component  {
                                     <View style={styles.item}>
 
                                         <View style={{flexDirection: 'row-reverse', marginTop: 10}}>
-                                            <TouchableOpacity>
+                                            <TouchableOpacity 
+                                                onPress={() => {
+                                                    this.setFavorito(item.Id);
+                                                }}
+                                            >
+                                                
                                                 <Image source={require('./assets/coracao.png')} style={{ width: 25, height: 25, marginRight: 20 }} />
+
                                             </TouchableOpacity>
                                         </View>							
 
@@ -370,11 +409,8 @@ class App extends Component  {
                         />
 
                     </View>
-
                 </View>   
-
-
-              </View>
+            </View>
         );
       }
 };
