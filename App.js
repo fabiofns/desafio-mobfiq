@@ -7,7 +7,7 @@
 console.disableYellowBox = true;
 
 import React, {Component} from 'react';
-import {
+import {    
     Platform,
     StyleSheet,
     ScrollView,
@@ -22,7 +22,8 @@ import {
 	Modal
 } from 'react-native';
 import NavigationBar from 'react-native-navbar';
-import Loading from './src/Loading';
+import Loading from './src/Helpers/Loading';
+import {getData, storeData} from './src/Helpers/Utils';
 
 class App extends Component  {
 
@@ -54,9 +55,14 @@ class App extends Component  {
     /**
      * Metodo que carrega os produtos na state, os parametros sao carregados atraves da state
      */
-	getProdutos = async () => {
+	getProdutos = async (pesquisa='') => {
 
 		try {
+            
+            if (this.state.busca != '') {
+
+                pesquisa = this.state.busca;
+            }
 
 			this.setState({loading: true});
 			this.setState({textLoading: 'Carregando Produtos'});
@@ -67,7 +73,7 @@ class App extends Component  {
                     Accept: 'application/json',
                     'Content-Type': 'application/json',
                   },
-                  body: '{\"Query\" : \"' + this.state.busca + '\",\"Offset\": ' + this.state.pagina + ',\"Size\": ' + '10' + '} '
+                  body: '{\"Query\" : \"' + pesquisa + '\",\"Offset\": ' + this.state.pagina + ',\"Size\": ' + '10' + '} '
 			})
 			.then(function (response) {
 	
@@ -77,7 +83,8 @@ class App extends Component  {
 	
 				this.setState({data: result.Products});
 				this.setState({loading: false});
-				this.setState({showSearch: false});
+                this.setState({showSearch: false});
+                this.setState({showCategorias: false});
 			})
 			.catch((result) => {
 	
@@ -99,7 +106,7 @@ class App extends Component  {
             this.setState({loading: true});
 			this.setState({textLoading: 'Carregando Dados'});
 
-			return await fetch('https://desafio.mobfiq.com.br/Search/Criteria', {
+			return await fetch('https://desafio.mobfiq.com.br/StorePreference/CategoryTree', {
 				method: 'GET',
 				headers: {
                     Accept: 'application/json',
@@ -112,7 +119,10 @@ class App extends Component  {
 			})
 			.then((result) => {
 	
-				this.setState({dataCategorias: result.Categories});
+                this.setState({dataCategorias: result.Categories});
+
+                console.log(result.Categories);
+
 				this.setState({loading: false});
 			})
 			.catch((result) => {
@@ -177,6 +187,64 @@ class App extends Component  {
                                     </Text>
                                 }                          
                             />   
+
+                            <FlatList
+                                data={this.state.dataCategorias}
+                                keyExtractor={item => item.Id}
+                                renderItem={({ item }) => {
+                                    return (
+                                    
+                                        <View
+                                            style={{
+                                                flexDirection: 'column'
+                                            }}
+                                        >
+                                            
+                                            <TouchableOpacity
+                                                style={{
+                                                    width: '90%',
+                                                    height: 70,
+                                                    justifyContent: 'center',
+                                                    marginLeft: 10,
+                                                    borderBottomWidth: 1,
+                                                    borderBottomColor: '#dedede'
+                                                }}
+                                                onPress={() => {
+
+                                                    this.getProdutos(item.Name);                                                    
+                                                }}
+                                            >
+                                                <View
+                                                    style={{
+                                                        flexDirection: 'row',                                                    
+                                                    }}
+                                                >
+                                                    <Image 
+                                                        source={require('./assets/categoria.png')} 
+                                                        style={{
+                                                            width: 30,
+                                                            height: 30,
+                                                        }}
+                                                    />
+
+                                                    <Text
+                                                        style={{
+                                                            marginLeft: 15,
+                                                            fontSize: 18,
+                                                        }}
+                                                    >
+                                                        {item.Name}
+                                                    </Text>
+
+                                                </View>
+
+                                            </TouchableOpacity>
+                                    
+                                        </View>
+                                    );
+                                }}					
+                            />
+
                         </View>
                     </ScrollView>
 
@@ -212,98 +280,99 @@ class App extends Component  {
 
                             </View>
                         }
-                    />					
+                    />	
+
+                    <View 
+                        style={{
+                            flexDirection: 'column', 
+                            alignItems: 'center',
+                            justifyContent: 'center'
+                        }}
+                    >
+
+                        {this.state.showSearch && (
+
+                            <View 
+                                style={{
+                                    flexDirection: 'row',
+                                    borderWidth: 1,
+                                    borderColor: '#dedede',
+                                    borderRadius: 10,
+                                    height: 50,
+                                    width: '92%'                                
+                                }}
+                            >
+
+                                <TextInput
+                                    style={{
+                                        marginLeft: 5,
+                                        width: '60%',
+                                    }}
+                                    placeholder='Digite sua busca aqui'
+                                    onChangeText={(text) => this.setState({busca: text})}
+                                    returnKeyLabel='Busca'
+                                    onSubmitEditing={() => {
+                                        this.getProdutos();
+                                    }}
+                                    autoCorrect={false}
+                                />	
+                                
+                            </View>
+                        )}
+        
+                        <FlatList
+                            data={this.state.data}
+                            keyExtractor={item => item.Id}
+                            renderItem={({ item }) => {
+                                return (
+                                
+                                    <View style={styles.item}>
+
+                                        <View style={{flexDirection: 'row-reverse', marginTop: 10}}>
+                                            <TouchableOpacity>
+                                                <Image source={require('./assets/coracao.png')} style={{ width: 25, height: 25, marginRight: 20 }} />
+                                            </TouchableOpacity>
+                                        </View>							
+
+                                        <View style={{alignItems: 'center', marginLeft: '3%'}}>
+                                            <TouchableOpacity>
+                                                <Image source={{uri: item.Skus[0].Images[0].ImageUrl}} style={{ width: 150, height: 150, marginRight: 20 }} />
+                                            </TouchableOpacity>
+                                        </View>
+
+                                        <Text
+                                            style={{
+                                                fontWeight: 'bold',
+                                                marginTop: 15,
+                                                padding: 5,
+                                                textAlign: 'center'
+                                            }}
+                                        >
+                                            {item.Skus[0].Name}
+                                        </Text>
+
+                                        <Text
+                                            style={{
+                                                fontWeight: 'bold',
+                                                marginTop: 15,
+                                                padding: 5,
+                                                textAlign: 'center',
+                                                color: '#FF4000'
+                                            }}
+                                        >
+                                            R$ {item.Skus[0].Sellers[0].Price}
+
+                                        </Text>
+                                    </View>
+                                );
+                            }}					
+                            numColumns={2} 					
+                        />
+
+                    </View>
 
                 </View>   
 
-                <View 
-                    style={{
-                        flexDirection: 'column', 
-                        marginTop: 100,
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                    }}
-                >
-
-                    {this.state.showSearch && (
-
-                        <View 
-                            style={{
-                                flexDirection: 'row',
-                                borderWidth: 1,
-                                borderColor: '#dedede',
-                                borderRadius: 10,
-                                height: 50,
-                                width: '92%'                                
-                            }}
-                        >
-
-                            <TextInput
-                                style={{
-                                    marginLeft: 5,
-                                    width: '60%',
-                                }}
-                                placeholder='Digite sua busca aqui'
-                                onChangeText={(text) => this.setState({busca: text})}
-                                returnKeyLabel='Busca'
-                                onSubmitEditing={() => {
-                                    this.getProdutos();
-								}}
-								autoCorrect={false}
-                            />	
-                            
-                        </View>
-                    )}
-    
-                    <FlatList
-                        data={this.state.data}
-                        keyExtractor={item => item.Id}
-                        renderItem={({ item }) => {
-                            return (
-                            
-                                <View style={styles.item}>
-
-                                    <View style={{flexDirection: 'row-reverse', marginTop: 10}}>
-                                        <TouchableOpacity>
-                                            <Image source={require('./assets/coracao.png')} style={{ width: 25, height: 25, marginRight: 20 }} />
-                                        </TouchableOpacity>
-                                    </View>							
-
-                                    <View style={{alignItems: 'center'}}>
-                                        <TouchableOpacity>
-                                            <Image source={{uri: item.Skus[0].Images[0].ImageUrl}} style={{ width: 150, height: 150, marginRight: 20 }} />
-                                        </TouchableOpacity>
-                                    </View>
-
-                                    <Text
-                                        style={{
-                                            fontWeight: 'bold',
-                                            marginTop: 15,
-                                            padding: 5,
-                                            textAlign: 'center'
-                                        }}
-                                    >
-                                        {item.Skus[0].Name}
-                                    </Text>
-
-                                    <Text
-                                        style={{
-                                            fontWeight: 'bold',
-                                            marginTop: 15,
-                                            padding: 5,
-                                            textAlign: 'center',
-                                            color: '#FF4000'
-                                        }}
-                                    >
-                                        R$ {item.Skus[0].Sellers[0].Price}
-
-                                    </Text>
-                                </View>
-                            );
-                        }}					
-                        numColumns={2} 					
-                    />
-                </View>
 
               </View>
         );
@@ -314,7 +383,7 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-      scrollView: {
+    scrollView: {
         backgroundColor: '#ffffff',
     },
     item: {
@@ -324,7 +393,7 @@ const styles = StyleSheet.create({
         width: '45%',
         borderWidth: 1,
         borderRadius: 10,
-        borderColor: '#dedede',
+        borderColor: '#dedede',        
     },
     text: {
         color: "#333333"
